@@ -2,6 +2,7 @@
 using MyFace.Models.Request;
 using MyFace.Models.Response;
 using MyFace.Repositories;
+using MyFace.Services;
 
 namespace MyFace.Controllers
 {
@@ -10,18 +11,27 @@ namespace MyFace.Controllers
     public class PostsController : ControllerBase
     {    
         private readonly IPostsRepo _posts;
+        private readonly IAuthService _authservice;
 
-        public PostsController(IPostsRepo posts)
+        public PostsController(IPostsRepo posts, IAuthService authService)
         {
             _posts = posts;
+            _authservice = authService;
         }
         
         [HttpGet("")]
-        public ActionResult<PostListResponse> Search([FromQuery] PostSearchRequest searchRequest)
+        public ActionResult<PostListResponse> Search(
+                [FromQuery] PostSearchRequest searchRequest,
+                [FromHeader(Name = "Authorization")] string authorizationHeader)
         {
-            var posts = _posts.Search(searchRequest);
-            var postCount = _posts.Count(searchRequest);
-            return PostListResponse.Create(searchRequest, posts, postCount);
+            if(_authservice.Authorize(authorizationHeader))
+            {
+                var posts = _posts.Search(searchRequest);
+                var postCount = _posts.Count(searchRequest);
+                return PostListResponse.Create(searchRequest, posts, postCount);
+            }
+            else
+                return new UnauthorizedResult();
         }
 
         [HttpGet("{id}")]
