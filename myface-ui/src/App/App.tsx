@@ -13,18 +13,21 @@ import {CreatePost} from "../Pages/CreatePost/CreatePost";
 function Routes(): ReactElement {
     const loginContext = useContext(LoginContext);
     
+    
     if (!loginContext.isLoggedIn) {
         return <Login/>
     }
     
     return (
-        <Switch>
-            <Route exact path="/" component={Feed}/>
-            <Route exact path="/users" component={Users}/>
-            <Route exact path="/users/:id" component={Profile}/>
-            <Route exact path="/new-post" component={CreatePost}/>
-            <Route path="" component={NotFound}/>
-        </Switch>
+        
+            <Switch>
+                <Route exact path="/" component={Feed}/>
+                <Route exact path="/users" component={Users}/>
+                <Route exact path="/users/:id" component={Profile}/>
+                <Route exact path="/new-post" component={CreatePost}/>
+                <Route path="" component={NotFound}/>
+            </Switch>
+        
     );
 }
 

@@ -22,7 +22,7 @@ namespace MyFace.Models.Request
 
         [Required]
         [StringLength(70)]
-        public string HashedPassword { get; set; }
+        public string Password { get; set; }
 
         public byte[] Salt { get; set; }
         

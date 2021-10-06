@@ -1,10 +1,13 @@
 ﻿import React, {createContext, ReactNode, useState} from "react";
+import { updateSpreadAssignment } from "typescript";
 
 export const LoginContext = createContext({
     isLoggedIn: false,
     isAdmin: false,
-    logIn: () => {},
-    logOut: () => {},
+    username: "",
+    password: "",
+    logIn: (username: string, password: string) => {},
+    logOut: () => {}
 });
 
 interface LoginManagerProps {
@@ -12,22 +15,32 @@ interface LoginManagerProps {
 }
 
 export function LoginManager(props: LoginManagerProps): JSX.Element {
-    const [loggedIn, setLoggedIn] = useState(true);
+    const [loggedIn, setLoggedIn] = useState(false);
+    const [contextusername, setUsername] = useState("");
+    const [contextPassword, setPassword] = useState("");
     
-    function logIn() {
+    function logIn(username: string, password: string) {
         setLoggedIn(true);
+        setUsername(username);
+        setPassword(password);
     }
     
     function logOut() {
         setLoggedIn(false);
+        setUsername("");
+        setPassword("");
     }
     
     const context = {
         isLoggedIn: loggedIn,
         isAdmin: loggedIn,
+        username: contextusername,
+        password: contextPassword,
         logIn: logIn,
-        logOut: logOut,
+        logOut: logOut 
     };
+
+    console.log(`username = ${context.username}  password = ${context.password}`);
     
     return (
         <LoginContext.Provider value={context}>

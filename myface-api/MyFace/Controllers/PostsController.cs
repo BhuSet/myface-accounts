@@ -3,6 +3,8 @@ using MyFace.Models.Request;
 using MyFace.Models.Response;
 using MyFace.Repositories;
 using MyFace.Services;
+using System.Text;
+using System;
 
 namespace MyFace.Controllers
 {
@@ -42,18 +44,37 @@ namespace MyFace.Controllers
         }
 
         [HttpPost("create")]
-        public IActionResult Create([FromBody] CreatePostRequest newPost)
+        public IActionResult Create(
+                    [FromBody] CreatePostRequest newPost,
+                    [FromHeader(Name = "Authorization")] string authorizationHeader)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            
-            var post = _posts.Create(newPost);
 
-            var url = Url.Action("GetById", new { id = post.Id });
-            var postResponse = new PostResponse(post);
-            return Created(url, postResponse);
+            if(_authservice.Authorize(authorizationHeader))
+            {
+                
+                string encodedUsernamePassword = authorizationHeader.Substring("Basic ".Length).Trim();
+                string decodedUsernamePassword = Encoding.UTF8.GetString(Convert.FromBase64String(encodedUsernamePassword));
+                
+                string[] usernamePasswordArray = decodedUsernamePassword.Split(':');
+                string username = usernamePasswordArray[0];
+
+                var user = _posts.GetByUsername(username);
+                Console.WriteLine("user = ");
+            
+                var post = _posts.Create(newPost, user.Id);
+                Console.WriteLine(post.UserId);
+
+                var url = Url.Action("GetById", new { id = post.Id });
+                var postResponse = new PostResponse(post);
+                return Created(url, postResponse);
+            }
+            else
+                return new UnauthorizedResult();
+
         }
 
         [HttpPatch("{id}/update")]

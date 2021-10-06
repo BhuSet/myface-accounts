@@ -13,6 +13,7 @@ namespace MyFace.Repositories
         IEnumerable<User> Search(UserSearchRequest search);
         int Count(UserSearchRequest search);
         User GetById(int id);
+        User GetByUsername(string username);
         User Create(CreateUserRequest newUser);
         User Update(int id, UpdateUserRequest update);
         void Delete(int id);
@@ -60,6 +61,12 @@ namespace MyFace.Repositories
                 .Single(user => user.Id == id);
         }
 
+        public User GetByUsername(string username)
+        {
+            return _context.Users
+                .Single(user => user.Username == username);
+        }
+
         public User Create(CreateUserRequest newUser)
         {
             byte[] salt = new byte[128 / 8];
@@ -69,7 +76,7 @@ namespace MyFace.Repositories
             }
 
             string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-                                    password: newUser.HashedPassword,
+                                    password: newUser.Password,
                                     salt: salt,
                                     prf: KeyDerivationPrf.HMACSHA256,
                                     iterationCount: 100000,

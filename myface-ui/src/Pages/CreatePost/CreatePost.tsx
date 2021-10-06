@@ -1,12 +1,15 @@
-﻿import React, {FormEvent, useState} from "react";
+﻿import React, {FormEvent, useState, useContext} from "react";
 import {Page} from "../Page/Page";
 import {createPost} from "../../Api/apiClient";
+import {LoginContext} from "../../Components/LoginManager/LoginManager";
 import {Link} from "react-router-dom";
 import "./CreatePost.scss";
 
 type FormStatus = "READY" | "SUBMITTING" | "ERROR" | "FINISHED"
 
 export function CreatePostForm(): JSX.Element {
+    const loginContext = useContext(LoginContext);
+
     const [message, setMessage] = useState("");
     const [imageUrl, setImageUrl] = useState("");
     const [userId, setUserId] = useState("");
@@ -15,7 +18,8 @@ export function CreatePostForm(): JSX.Element {
     function submitForm(event: FormEvent) {
         event.preventDefault();
         setStatus("SUBMITTING");
-        createPost({message, imageUrl, userId: parseInt(userId)})
+        console.log(`username = ${loginContext.username}  password = ${loginContext.password}`);
+        createPost({message, imageUrl}, loginContext.username, loginContext.password)
             .then(() => setStatus("FINISHED"))
             .catch(() => setStatus("ERROR"));
     }
@@ -37,11 +41,6 @@ export function CreatePostForm(): JSX.Element {
             <label className="form-label">
                 Image URL
                 <input className="form-input" value={imageUrl} onChange={event => setImageUrl(event.target.value)}/>
-            </label>
-
-            <label className="form-label">
-                User ID
-                <input className="form-input" value={userId} onChange={event => setUserId(event.target.value)}/>
             </label>
 
             <button className="submit-button" disabled={status === "SUBMITTING"} type="submit">Create Post</button>
